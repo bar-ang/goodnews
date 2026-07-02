@@ -210,10 +210,6 @@ class MyFirstAddon:
         """
         This function triggers whenever a server sends a RESPONSE back to your computer.
         """
-        #print(f"[<-- RESPONSE] Received response from: {flow.request.pretty_url}")
-
-        # Example: Intercepting and modifying content
-        # Let's check if the response looks like text/html
         if ctx.options.dev_mode and not flow.server_conn.address[0]=="localhost":
             return
 
