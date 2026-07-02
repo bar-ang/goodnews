@@ -117,6 +117,10 @@ IMAGE_MANIPULATION_MODES = {
     "gallery" : "choose random image from gallery",
     "invert": "invert image colors"
 }
+TEXT_MANIPULATION_MODES = {
+    "none" : "do not change texts",
+    "replace" : "replace words with funnier words",
+}
 
 def replace_words(text: str, replacements) -> str:
     for original, replacement in replacements.items():
@@ -146,9 +150,20 @@ class MyFirstAddon:
             default="none",
             help=", ".join([f"{k}={v}" for k, v in IMAGE_MANIPULATION_MODES.items()]),
         )
+        loader.add_option(
+            name="text_mode",
+            typespec=str,
+            default="replace",
+            help=", ".join([f"{k}={v}" for k, v in TEXT_MANIPULATION_MODES.items()]),
+        )
 
     def running(self):
         print(f"ADDON LOADED, LISTED DOMAINS: {self._domains}")
+        if ctx.options.text_mode not in TEXT_MANIPULATION_MODES.keys():
+            info = ", ".join([f"{k}={v}" for k, v in TEXT_MANIPULATION_MODES.items()])
+            raise Exception(f"Unknown text manipulation mode '{ctx.options.text_mode}'.\nAvailable modes: {info}")
+        print(f"Text manipulation mode: {ctx.options.text_mode}")
+
         if ctx.options.image_mode not in IMAGE_MANIPULATION_MODES.keys():
             info = ", ".join([f"{k}={v}" for k, v in IMAGE_MANIPULATION_MODES.items()])
             raise Exception(f"Unknown image manipulation mode '{ctx.options.image_mode}'.\nAvailable modes: {info}")
@@ -210,10 +225,13 @@ class MyFirstAddon:
             content_type = flow.response.headers.get("content-type", "")
             if "text/html" in content_type:
                 print("GOT HTML", content_type)
-                textman = HTMLManipulator(flow.response.text)
-                textman.replace_words(self._replace_words)
-                #update_word_frequencies(extract_visible_words(text), "freqs.json")
-                flow.response.text = str(textman.get())
+                if ctx.options.text_mode == "replace":
+                    textman = HTMLManipulator(flow.response.text)
+                    textman.replace_words(self._replace_words)
+                    #update_word_frequencies(extract_visible_words(text), "freqs.json")
+                    flow.response.text = str(textman.get())
+                else:
+                    pass
             elif "application/json" in content_type:
                 print("GOT JSON", content_type)
                 clean = flow.response.text.replace("jsonCallback(", "").replace(");", "")
