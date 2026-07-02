@@ -24,6 +24,12 @@ class HTMLManipulator:
 
         trace(self.root, _replace, words)
 
+    def reverse(self):
+        def _reverse(child):
+            child.replace_with(NavigableString(child[::-1]))
+
+        trace(self.root, _reverse)
+
     def get(self):
         return self._soup
 
