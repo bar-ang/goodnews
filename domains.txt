@@ -6,3 +6,4 @@ localhost
 ynet-pic1.yit.co.il
 www.n12.co.il
 img.mako.co.il
+www.calcalist.co.il
