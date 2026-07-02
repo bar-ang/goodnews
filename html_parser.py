@@ -11,6 +11,10 @@ class HTMLManipulator:
     def __init__(self, html: str):
         self._soup = BeautifulSoup(html, 'html.parser')
 
+    @property
+    def root(self):
+        return self._soup.body if self._soup.body else self._soup
+
     def replace_words(self, words):
         def _replace(child, words):
             mod_child = child
@@ -18,8 +22,7 @@ class HTMLManipulator:
                 mod_child = mod_child.replace(original, replace)
             child.replace_with(NavigableString(mod_child))
 
-        root = self._soup.body if self._soup.body else self._soup
-        trace(root, _replace, words)
+        trace(self.root, _replace, words)
 
     def get(self):
         return self._soup
