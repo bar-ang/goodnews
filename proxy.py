@@ -4,7 +4,7 @@ import os
 import io
 import collections
 from PIL import Image, ImageOps
-from bs4 import BeautifulSoup
+from html_parser import HTMLManipulator
 from mitmproxy import http
 from mitmproxy import ctx
 
@@ -210,9 +210,10 @@ class MyFirstAddon:
             content_type = flow.response.headers.get("content-type", "")
             if "text/html" in content_type:
                 print("GOT HTML", content_type)
-                text = flow.response.text
+                textman = HTMLManipulator(flow.response.text)
+                textman.replace_words(self._replace_words)
                 #update_word_frequencies(extract_visible_words(text), "freqs.json")
-                flow.response.text = replace_words(text, self._replace_words)
+                flow.response.text = str(textman.get())
             elif "application/json" in content_type:
                 print("GOT JSON", content_type)
                 clean = flow.response.text.replace("jsonCallback(", "").replace(");", "")
