@@ -120,6 +120,7 @@ IMAGE_MANIPULATION_MODES = {
 TEXT_MANIPULATION_MODES = {
     "none" : "do not change texts",
     "replace" : "replace words with funnier words",
+    "reverse": "reverse characters in text"
 }
 
 def replace_words(text: str, replacements) -> str:
@@ -229,6 +230,10 @@ class MyFirstAddon:
                     textman = HTMLManipulator(flow.response.text)
                     textman.replace_words(self._replace_words)
                     #update_word_frequencies(extract_visible_words(text), "freqs.json")
+                    flow.response.text = str(textman.get())
+                elif ctx.options.text_mode == "reverse":
+                    textman = HTMLManipulator(flow.response.text)
+                    textman.reverse()
                     flow.response.text = str(textman.get())
                 else:
                     pass
