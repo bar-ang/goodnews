@@ -41,9 +41,16 @@ if __name__ == "__main__":
     htmlman.replace_words(dict(Travel="Bamba", of="IN", e="k"))
     print(htmlman.get().prettify())
 
-    output_filename = "debug_server/modified_index.html"
+    output_filename = "debug_server/index_replace.html"
     with open(output_filename, "w", encoding="utf-8") as file:
         file.write(str(htmlman.get()))
 
+    html_content = open("debug_server/english.html", "r").read()
+    htmlman = HTMLManipulator(html_content)
+    htmlman.reverse()
+    print(htmlman.get().prettify())
+    output_filename = "debug_server/index_reverse.html"
+    with open(output_filename, "w", encoding="utf-8") as file:
+        file.write(str(htmlman.get()))
 
 
