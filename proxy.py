@@ -199,8 +199,6 @@ class MyFirstAddon:
         """
         This function triggers whenever your computer sends a REQUEST to a server.
         """
-        # Log the target URL to your terminal
-        #print(f"[--> REQUEST] Browser is visiting: {flow.request.pretty_url}")
         if ctx.options.dev_mode and not "localhost" in flow.request.pretty_url:
             return
 
