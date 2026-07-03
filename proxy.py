@@ -202,9 +202,6 @@ class MyFirstAddon:
         # Log the target URL to your terminal
         #print(f"[--> REQUEST] Browser is visiting: {flow.request.pretty_url}")
 
-        # Example: You can read or modify headers here
-        # if "User-Agent" in flow.request.headers:
-        #     print(f"User-Agent is: {flow.request.headers['User-Agent']}")
 
     def response(self, flow: http.HTTPFlow) -> None:
         """
