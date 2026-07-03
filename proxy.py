@@ -207,13 +207,18 @@ class MyFirstAddon:
         """
         This function triggers whenever a server sends a RESPONSE back to your computer.
         """
-        if ctx.options.dev_mode and not flow.server_conn.address[0]=="localhost":
+        try:
+            host = flow.server_conn.address[0]
+        except TypeError:
+            host = flow.request.data.headers["Host"].split(":")[0]
+
+        if ctx.options.dev_mode and not host=="localhost":
             return
 
-        if not flow.server_conn.address[0] in self._domains:
+        if not host in self._domains:
             return
 
-        print("LISTED", flow.server_conn.address[0])
+        print("LISTED", host)
 
         with open("replace.txt", 'r', encoding='utf-8') as file:
             content_type = flow.response.headers.get("content-type", "")
