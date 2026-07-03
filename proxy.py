@@ -201,6 +201,12 @@ class MyFirstAddon:
         """
         # Log the target URL to your terminal
         #print(f"[--> REQUEST] Browser is visiting: {flow.request.pretty_url}")
+        if ctx.options.dev_mode and not "localhost" in flow.request.pretty_url:
+            return
+
+        if not any([domain in flow.request.pretty_url for domain in self._domains]):
+            return
+
 
 
     def response(self, flow: http.HTTPFlow) -> None:
