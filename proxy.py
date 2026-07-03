@@ -207,6 +207,17 @@ class MyFirstAddon:
         if not any([domain in flow.request.pretty_url for domain in self._domains]):
             return
 
+        if ctx.options.image_mode == "gallery" and "image" in flow.request.data.headers["Accept"].lower():
+            replace_image = Image.open("gallery/textisempty.jpg")
+            output_bytes = io.BytesIO()
+            replace_image.save(output_bytes, format="JPEG")
+
+            flow.response = http.Response.make(
+                200,                  # Status code
+                output_bytes.getvalue(),          # The raw image data (bytes)
+                {"Content-Type": "image/jpeg"}  # Correct MIME type
+            )
+            print(f"[Mitmproxy] Successfully replaced image for: {flow.request.pretty_url}")
 
 
     def response(self, flow: http.HTTPFlow) -> None:
@@ -262,19 +273,8 @@ class MyFirstAddon:
                     return
 
                 if ctx.options.image_mode == "gallery":
-                    replace_image = Image.open("gallery/textisempty.jpg")
-                    im_type = content_type.split("/")[1]
-                    if im_type in ["png", "jpg", "jpeg", "avif", "gif"]:
-                        if flow.response.data.status_code != 200:
-                            print(f"GOT STATUS {flow.response.data.status_code}")
-                            return
-                        output_bytes = io.BytesIO()
-                        replace_image.save(output_bytes, format="JPEG")
-                        flow.response.data.content = output_bytes.getvalue()
-                        fields = flow.response.headers.fields
-                        fields = reset_field(fields, 'Content-Length', output_bytes.tell())
-                        fields = reset_field(fields, 'Content-Type', "image/jpeg")
-                        flow.response.headers.fields = fields
+                    # handled on request
+                    pass
                 elif ctx.options.image_mode == "invert":
                     if len(flow.response.data.content) < 4000:
                         return
