@@ -217,7 +217,6 @@ class MyFirstAddon:
         )
 
     def running(self):
-        print(f"ADDON LOADED, LISTED DOMAINS: {self._domains}")
         if ctx.options.text_mode not in TEXT_MANIPULATION_MODES.keys():
             info = ", ".join([f"{k}={v}" for k, v in TEXT_MANIPULATION_MODES.items()])
             raise Exception(f"Unknown text manipulation mode '{ctx.options.text_mode}'.\nAvailable modes: {info}")
