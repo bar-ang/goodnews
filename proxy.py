@@ -330,7 +330,11 @@ class MyFirstAddon:
             elif "application/json" in content_type:
                 print("GOT JSON", content_type)
                 clean = flow.response.text.replace("jsonCallback(", "").replace(");", "")
-                t2 = json.loads(clean)
+                try:
+                    t2 = json.loads(clean)
+                except Exception as e:
+                    print(e)
+                    return
                 try:
                     text = json.dumps(t2, ensure_ascii=False)
                 except Exception as e:
