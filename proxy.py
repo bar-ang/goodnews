@@ -7,6 +7,27 @@ from PIL import Image, ImageOps
 from html_parser import HTMLManipulator
 from mitmproxy import http
 from mitmproxy import ctx
+from pathlib import Path
+
+def load_images_from_folder(folder_path: str) -> list[Image.Image]:
+    """
+    Reads all files from a folder and returns them as a list of PIL Images.
+    """
+    pil_images = []
+    path = Path(folder_path)
+
+    # Iterate through all items in the directory
+    for file_path in path.iterdir():
+        # Ensure it's a file before trying to open it
+        if file_path.is_file():
+            try:
+                img = Image.open(file_path)
+                img.load() 
+                pil_images.append(img)
+            except Exception as e:
+                print(f"Skipping {file_path.name}: Could not open as an image. Error: {e}")
+
+    return pil_images
 
 def reset_field(fields, target_key, new_value):
     # Ensure target_key is bytes for comparison (assuming input fields use bytes keys)
@@ -137,7 +158,7 @@ class MyFirstAddon:
 
     def load(self, loader, domains_file="domains.txt", words_file="replace.txt"):
         self._domains = self.load_domains(domains_file)
-        self._images = [Image.open("gallery/textisempty.jpg")]
+        self._images = []
         self._replace_words = self.load_replace_words(words_file)
         loader.add_option(
             name="dev_mode",
@@ -168,7 +189,13 @@ class MyFirstAddon:
         if ctx.options.image_mode not in IMAGE_MANIPULATION_MODES.keys():
             info = ", ".join([f"{k}={v}" for k, v in IMAGE_MANIPULATION_MODES.items()])
             raise Exception(f"Unknown image manipulation mode '{ctx.options.image_mode}'.\nAvailable modes: {info}")
+        if ctx.options.image_mode == "gallery":
+            self._images = load_images_from_folder("gallery")
+            if not self._images:
+                raise Exception(f"Cannot run image manipulation mode {ctx.options.image_mode}, gallery is empty.")
+            print(f"{len(self._images)} images in gallery")
         print(f"Image manipulation mode: {ctx.options.image_mode}")
+        print(f"ADDON LOADED, LISTED DOMAINS: {self._domains}")
 
 
     def load_domains(self, file, comment="#"):
@@ -206,7 +233,7 @@ class MyFirstAddon:
             return
 
         if ctx.options.image_mode == "gallery" and "image" in flow.request.data.headers["Accept"].lower():
-            replace_image = Image.open("gallery/textisempty.jpg")
+            replace_image = random.choice(self._images)
             output_bytes = io.BytesIO()
             replace_image.save(output_bytes, format="JPEG")
 
