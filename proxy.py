@@ -3,11 +3,52 @@ import re
 import os
 import io
 import collections
+import random
+import string
+import unicodedata
 from PIL import Image, ImageOps
 from html_parser import HTMLManipulator
 from mitmproxy import http
 from mitmproxy import ctx
 from pathlib import Path
+
+def randomize_hebrew_text(text: str) -> str:
+    # 1. Define strict Hebrew character sets
+    # Base letters that can start or be in the middle of a word
+    hebrew_base = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט', 'י', 'כ', 'ל', 'מ', 'נ', 'ס', 'ע', 'פ', 'צ', 'ק', 'ר', 'ש', 'ת']
+    # Mapping to final forms if a base letter lands at the end of a word
+    final_forms = {
+        'כ': 'ך',
+        'מ': 'ם',
+        'נ': 'ן',
+        'פ': 'ף',
+        'צ': 'ץ'
+    }
+    # 2. Define what counts as punctuation/spacing (everything else is treated as a letter)
+    hebrew_punctuation = "״׳" # Gershayim and Geresh
+    standard_punctuation = string.punctuation # .,!?;:# etc.
+    whitespace = " \n\t\r"
+    # Combine them into a strict "allow list" for punctuation
+    preserve_set = set(standard_punctuation + hebrew_punctuation + whitespace)
+    result = []
+    text_length = len(text)
+    # 3. Process the string character by character
+    for i, char in enumerate(text):
+        if char in preserve_set:
+            # If it's a punctuation mark or space, keep it exactly as it is
+            result.append(char)
+        else:
+            # It's a letter (or a garbage character acting as a letter) -> Replace it with clean Hebrew
+            # Determine if this position is the end of a word chunk
+            is_end_of_word = (i == text_length - 1) or (text[i + 1] in preserve_set)
+            # Grab a completely random standard Hebrew letter
+            random_char = random.choice(hebrew_base)
+            # If it's at the end of the word, convert it to its final form (Sofit) if it has one
+            if is_end_of_word and random_char in final_forms:
+                random_char = final_forms[random_char]
+            result.append(random_char)
+
+    return "".join(result)
 
 def load_images_from_folder(folder_path: str) -> list[Image.Image]:
     """
@@ -141,7 +182,8 @@ IMAGE_MANIPULATION_MODES = {
 TEXT_MANIPULATION_MODES = {
     "none" : "do not change texts",
     "replace" : "replace words with funnier words",
-    "reverse": "reverse characters in text"
+    "reverse": "reverse characters in text",
+    "censor": "censor replace words",
 }
 
 def replace_words(text: str, replacements) -> str:
@@ -274,6 +316,14 @@ class MyFirstAddon:
                 elif ctx.options.text_mode == "reverse":
                     textman = HTMLManipulator(flow.response.text)
                     textman.reverse()
+                    flow.response.text = str(textman.get())
+                elif ctx.options.text_mode == "censor":
+                    textman = HTMLManipulator(flow.response.text)
+                    censored_words = {
+                        word : randomize_hebrew_text(word)
+                        for word in self._replace_words.keys()
+                    }
+                    textman.replace_words(censored_words)
                     flow.response.text = str(textman.get())
                 else:
                     pass
