@@ -24,6 +24,15 @@ class HTMLManipulator:
 
         trace(self.root, _replace, words)
 
+    def drop(self, words):
+        def _drop(child, words):
+            for word in words:
+                if word in child:
+                    child.replace_with(NavigableString("זורחת השמש"))
+                    return
+
+        trace(self.root, _drop, words)
+
     def reverse(self):
         def _reverse(child):
             child.replace_with(NavigableString(child[::-1]))

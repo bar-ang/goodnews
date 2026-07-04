@@ -183,6 +183,7 @@ TEXT_MANIPULATION_MODES = {
     "none" : "do not change texts",
     "replace" : "replace words with funnier words",
     "reverse": "reverse characters in text",
+    "drop": "delete paragraphs containing replace words",
     "censor": "censor replace words",
 }
 
@@ -318,6 +319,11 @@ class MyFirstAddon:
                         for word in self._replace_words.keys()
                     }
                     textman.replace_words(censored_words)
+                    flow.response.text = str(textman.get())
+                elif ctx.options.text_mode == "drop":
+                    textman = HTMLManipulator(flow.response.text)
+                    textman.drop(self._replace_words.keys())
+#                    import pdb; pdb.set_trace()
                     flow.response.text = str(textman.get())
                 else:
                     pass
