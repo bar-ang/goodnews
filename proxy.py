@@ -193,11 +193,6 @@ def replace_words(text: str, replacements) -> str:
     return text
 
 class MyFirstAddon:
-    #def __init__(self, domains_file="domains.txt", words_file="replace.txt"):
-    #    self._domains = self.load_domains(domains_file)
-    #    self._images = [Image.open("gallery/textisempty.jpg")]
-    #    self._replace_words = self.load_replace_words(words_file)
-
     def load(self, loader, domains_file="domains.txt", words_file="replace.txt"):
         self._domains = self.load_domains(domains_file)
         self._images = []
