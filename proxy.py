@@ -297,12 +297,9 @@ class MyFirstAddon:
         if not host in self._domains:
             return
 
-        print("LISTED", host)
-
         with open("replace.txt", 'r', encoding='utf-8') as file:
             content_type = flow.response.headers.get("content-type", "")
             if "text/html" in content_type:
-                print("GOT HTML", content_type)
                 if ctx.options.text_mode == "replace":
                     textman = HTMLManipulator(flow.response.text)
                     textman.replace_words(self._replace_words)
@@ -328,7 +325,6 @@ class MyFirstAddon:
                 else:
                     pass
             elif "application/json" in content_type:
-                print("GOT JSON", content_type)
                 clean = flow.response.text.replace("jsonCallback(", "").replace(");", "")
                 try:
                     t2 = json.loads(clean)
@@ -342,7 +338,6 @@ class MyFirstAddon:
                     text=t2
                 flow.response.text = replace_words(text, self._replace_words)
             elif "image" in content_type:
-                print("GOT IMG", content_type)
                 im_type = content_type.split("/")[1]
                 if im_type not in ["png", "jpg", "jpeg", "avif", "gif"]:
                     return
