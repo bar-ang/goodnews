@@ -24,7 +24,11 @@ class HTMLManipulator:
 
     def replace_words(self, words):
         def _replace(child, words):
-           assert type(child) == str or isinstance(child, NavigableString), f"bad element type, but got {type(child)}"
+            try:
+                assert type(child) == str or isinstance(child, NavigableString), f"bad element type, but got {type(child)}"
+            except AssertionError as e:
+                print(e)
+                import pdb; pdb.set_trace()
 
             mod_child = child
             for original, replace in words.items():
