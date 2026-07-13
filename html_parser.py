@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup, NavigableString, Comment
 
 PROECTED_TAGS = ["script", "style"]
 
@@ -8,6 +9,8 @@ def trace(elem, func, *args, **kwargs):
     for child in list(elem.children):
         if child.name is not None:
             trace(child, func, *args, **kwargs)
+        elif isinstance(child, Comment):
+            continue
         else:
             func(child, *args, **kwargs)
 
@@ -21,6 +24,8 @@ class HTMLManipulator:
 
     def replace_words(self, words):
         def _replace(child, words):
+           assert type(child) == str or isinstance(child, NavigableString), f"bad element type, but got {type(child)}"
+
             mod_child = child
             for original, replace in words.items():
                 mod_child = mod_child.replace(original, replace)
