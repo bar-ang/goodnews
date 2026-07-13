@@ -1,6 +1,10 @@
-from bs4 import BeautifulSoup, NavigableString
+
+PROECTED_TAGS = ["script", "style"]
 
 def trace(elem, func, *args, **kwargs):
+    if elem.name in PROECTED_TAGS:
+        return
+
     for child in list(elem.children):
         if child.name is not None:
             trace(child, func, *args, **kwargs)
